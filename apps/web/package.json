@@ -9,11 +9,16 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "buffer": "^6.0.3",
+    "crypto-browserify": "^3.12.1",
+    "events": "^3.3.0",
     "next": "14.0.4",
+    "process": "^0.11.10",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "xrpl-connect": "^0.1.0",
-    "xrpl": "^3.0.0"
+    "stream-browserify": "^3.0.0",
+    "xrpl": "^3.0.0",
+    "xrpl-connect": "^0.4.0"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.16",

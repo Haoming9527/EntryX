@@ -1,16 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { useXRPL } from "./providers/XRPLProvider";
+import { useWallet } from "./providers/WalletProvider";
 
 export function ContractInteraction() {
-  const { connectedWallet, client, isConnected, addTransaction, refreshAccountInfo } = useXRPL();
+  const { walletManager, isConnected, addEvent, showStatus } = useWallet();
   const [contractAddress, setContractAddress] = useState("");
   const [functionName, setFunctionName] = useState("");
   const [functionArgs, setFunctionArgs] = useState("");
   const [isCalling, setIsCalling] = useState(false);
-  const [message, setMessage] = useState("");
-  const [result, setResult] = useState("");
+  const [callResult, setCallResult] = useState(null);
 
   const stringToHex = (str) => {
     return Array.from(str)
@@ -19,66 +18,61 @@ export function ContractInteraction() {
       .toUpperCase();
   };
 
-  const callContract = async () => {
-    if (!connectedWallet || !isConnected || !contractAddress || !functionName) {
-      setMessage("Please fill in all fields");
-      return;
-    }
-
-    setIsCalling(true);
-    setMessage("");
-    setResult("");
-
-    try {
-      const functionNameHex = stringToHex(functionName);
-
-      const tx = {
-        TransactionType: "ContractCall",
-        Account: connectedWallet.address,
-        ContractAccount: contractAddress,
-        Fee: "1000000",
-        FunctionName: functionNameHex,
-        ComputationAllowance: "1000000",
-      };
-
-      if (functionArgs) {
-        tx.FunctionArgs = stringToHex(functionArgs);
-      }
-
-      setMessage("Please sign the transaction in your wallet...");
-
-      if (window.xaman && connectedWallet.type === "Xaman") {
-        const payload = await window.xaman.payload.create({
-          txjson: tx,
-        });
-        setMessage(`Transaction submitted. Hash: ${payload.hash}`);
-        setResult(JSON.stringify(payload.result || {}, null, 2));
-        addTransaction({ tx, hash: payload.hash });
-      } else if (window.crossmark && connectedWallet.type === "Crossmark") {
-        const response = await window.crossmark.signAndSubmit(tx);
-        setMessage(`Transaction submitted. Hash: ${response.hash}`);
-        setResult(JSON.stringify(response.result || {}, null, 2));
-        addTransaction({ tx, hash: response.hash });
-      } else {
-        setMessage(
-          "Manual transaction signing not yet implemented. Please use Xaman or Crossmark wallet."
-        );
-      }
-
-      setTimeout(() => {
-        refreshAccountInfo();
-      }, 3000);
-    } catch (error) {
-      console.error("Contract call failed:", error);
-      setMessage(`Error: ${error.message || "Failed to call contract"}`);
-    } finally {
-      setIsCalling(false);
-    }
-  };
-
   const loadCounterExample = () => {
     setFunctionName("increment");
     setFunctionArgs("");
+    setCallResult(null);
+  };
+
+  const handleCallContract = async () => {
+    if (!walletManager || !walletManager.account) {
+      showStatus("Please connect a wallet first", "error");
+      return;
+    }
+
+    if (!contractAddress || !functionName) {
+      showStatus("Please provide contract address and function name", "error");
+      return;
+    }
+
+    try {
+      setIsCalling(true);
+      setCallResult(null);
+
+      const transaction = {
+        TransactionType: "ContractCall",
+        Account: walletManager.account.address,
+        ContractAccount: contractAddress,
+        Fee: "1000000", // 1 XRP in drops
+        FunctionName: stringToHex(functionName),
+        ComputationAllowance: "1000000",
+      };
+
+      // Add function arguments if provided
+      if (functionArgs) {
+        transaction.FunctionArguments = stringToHex(functionArgs);
+      }
+
+      const txResult = await walletManager.signAndSubmit(transaction);
+
+      setCallResult({
+        success: true,
+        hash: txResult.hash || "Pending",
+        id: txResult.id,
+      });
+
+      showStatus("Contract called successfully!", "success");
+      addEvent("Contract Called", txResult);
+    } catch (error) {
+      setCallResult({
+        success: false,
+        error: error.message,
+      });
+      showStatus(`Contract call failed: ${error.message}`, "error");
+      addEvent("Contract Call Failed", error);
+    } finally {
+      setIsCalling(false);
+    }
   };
 
   return (
@@ -148,30 +142,51 @@ export function ContractInteraction() {
           </ul>
         </div>
 
-        <button
-          onClick={callContract}
-          disabled={!connectedWallet || !contractAddress || !functionName || isCalling}
-          className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {isCalling ? "Calling..." : "Call Contract Function"}
-        </button>
-
-        {message && (
-          <div
-            className={`p-3 rounded-lg ${
-              message.startsWith("Error")
-                ? "bg-red-50 text-red-700 border border-red-200"
-                : "bg-blue-50 text-blue-700 border border-blue-200"
-            }`}
+        {isConnected && contractAddress && functionName && (
+          <button
+            onClick={handleCallContract}
+            disabled={isCalling}
+            className="w-full bg-accent text-white py-2 px-4 rounded-lg font-semibold hover:bg-accent/90 disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
-            {message}
+            {isCalling ? "Calling Contract..." : "Call Contract"}
+          </button>
+        )}
+
+        {!isConnected && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-800">
+            <strong>Connect your wallet</strong> to interact with contracts
           </div>
         )}
 
-        {result && (
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Result</label>
-            <pre className="p-3 bg-gray-50 rounded-lg text-xs overflow-auto">{result}</pre>
+        {callResult && (
+          <div
+            className={`p-4 rounded-lg ${
+              callResult.success
+                ? "bg-green-50 border border-green-200"
+                : "bg-red-50 border border-red-200"
+            }`}
+          >
+            {callResult.success ? (
+              <>
+                <h3 className="font-bold text-green-800 mb-2">Contract Called!</h3>
+                <p className="text-sm text-green-700">
+                  <strong>Hash:</strong> {callResult.hash}
+                </p>
+                {callResult.id && (
+                  <p className="text-sm text-green-700">
+                    <strong>ID:</strong> {callResult.id}
+                  </p>
+                )}
+                <p className="text-xs text-green-600 mt-2">
+                  ✅ Contract function has been called successfully
+                </p>
+              </>
+            ) : (
+              <>
+                <h3 className="font-bold text-red-800 mb-2">Call Failed</h3>
+                <p className="text-sm text-red-700">{callResult.error}</p>
+              </>
+            )}
           </div>
         )}
       </div>

@@ -1,20 +1,20 @@
 "use client";
 
 import { useState } from "react";
-import { useXRPL } from "./providers/XRPLProvider";
+import { useWallet } from "./providers/WalletProvider";
 
 export function ContractDeployment() {
-  const { connectedWallet, client, isConnected, addTransaction, refreshAccountInfo } = useXRPL();
+  const { walletManager, isConnected, addEvent, showStatus } = useWallet();
   const [wasmFile, setWasmFile] = useState(null);
   const [wasmHex, setWasmHex] = useState("");
   const [isDeploying, setIsDeploying] = useState(false);
-  const [message, setMessage] = useState("");
-  const [contractAddress, setContractAddress] = useState("");
+  const [deployResult, setDeployResult] = useState(null);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       setWasmFile(file);
+      setDeployResult(null);
       const reader = new FileReader();
       reader.onload = (event) => {
         const arrayBuffer = event.target.result;
@@ -29,49 +29,45 @@ export function ContractDeployment() {
     }
   };
 
-  const deployContract = async () => {
-    if (!connectedWallet || !isConnected || !wasmHex) {
-      setMessage("Please connect wallet and select a WASM file");
+  const handleDeploy = async () => {
+    if (!walletManager || !walletManager.account) {
+      showStatus("Please connect a wallet first", "error");
       return;
     }
 
-    setIsDeploying(true);
-    setMessage("");
+    if (!wasmHex) {
+      showStatus("Please upload a WASM file first", "error");
+      return;
+    }
 
     try {
-      const tx = {
+      setIsDeploying(true);
+      setDeployResult(null);
+
+      const transaction = {
         TransactionType: "ContractCreate",
-        Account: connectedWallet.address,
-        Fee: "100000000",
+        Account: walletManager.account.address,
+        Fee: "100000000", // 100 XRP in drops
         ContractCode: wasmHex,
       };
 
-      setMessage("Please sign the transaction in your wallet...");
+      const txResult = await walletManager.signAndSubmit(transaction);
 
-      if (window.xaman && connectedWallet.type === "Xaman") {
-        const payload = await window.xaman.payload.create({
-          txjson: tx,
-        });
-        setMessage(`Transaction submitted. Hash: ${payload.hash}`);
-        setContractAddress(payload.contractAddress || "Check explorer for contract address");
-        addTransaction({ tx, hash: payload.hash });
-      } else if (window.crossmark && connectedWallet.type === "Crossmark") {
-        const response = await window.crossmark.signAndSubmit(tx);
-        setMessage(`Transaction submitted. Hash: ${response.hash}`);
-        setContractAddress(response.contractAddress || "Check explorer for contract address");
-        addTransaction({ tx, hash: response.hash });
-      } else {
-        setMessage(
-          "Manual transaction signing not yet implemented. Please use Xaman or Crossmark wallet."
-        );
-      }
+      setDeployResult({
+        success: true,
+        hash: txResult.hash || "Pending",
+        id: txResult.id,
+      });
 
-      setTimeout(() => {
-        refreshAccountInfo();
-      }, 3000);
+      showStatus("Contract deployed successfully!", "success");
+      addEvent("Contract Deployed", txResult);
     } catch (error) {
-      console.error("Contract deployment failed:", error);
-      setMessage(`Error: ${error.message || "Failed to deploy contract"}`);
+      setDeployResult({
+        success: false,
+        error: error.message,
+      });
+      showStatus(`Deployment failed: ${error.message}`, "error");
+      addEvent("Contract Deployment Failed", error);
     } finally {
       setIsDeploying(false);
     }
@@ -117,30 +113,51 @@ export function ContractDeployment() {
           sufficient balance.
         </div>
 
-        <button
-          onClick={deployContract}
-          disabled={!connectedWallet || !wasmHex || isDeploying}
-          className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {isDeploying ? "Deploying..." : "Deploy Contract"}
-        </button>
-
-        {message && (
-          <div
-            className={`p-3 rounded-lg ${
-              message.startsWith("Error")
-                ? "bg-red-50 text-red-700 border border-red-200"
-                : "bg-blue-50 text-blue-700 border border-blue-200"
-            }`}
+        {isConnected && wasmHex && (
+          <button
+            onClick={handleDeploy}
+            disabled={isDeploying}
+            className="w-full bg-accent text-white py-2 px-4 rounded-lg font-semibold hover:bg-accent/90 disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
-            {message}
+            {isDeploying ? "Deploying Contract..." : "Deploy Contract"}
+          </button>
+        )}
+
+        {!isConnected && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-800">
+            <strong>Connect your wallet</strong> to deploy contracts
           </div>
         )}
 
-        {contractAddress && (
-          <div className="p-3 rounded-lg bg-green-50 border border-green-200">
-            <div className="text-sm text-green-700 font-medium mb-1">Contract Deployed!</div>
-            <div className="text-xs font-mono break-all">{contractAddress}</div>
+        {deployResult && (
+          <div
+            className={`p-4 rounded-lg ${
+              deployResult.success
+                ? "bg-green-50 border border-green-200"
+                : "bg-red-50 border border-red-200"
+            }`}
+          >
+            {deployResult.success ? (
+              <>
+                <h3 className="font-bold text-green-800 mb-2">Contract Deployed!</h3>
+                <p className="text-sm text-green-700">
+                  <strong>Hash:</strong> {deployResult.hash}
+                </p>
+                {deployResult.id && (
+                  <p className="text-sm text-green-700">
+                    <strong>ID:</strong> {deployResult.id}
+                  </p>
+                )}
+                <p className="text-xs text-green-600 mt-2">
+                  ✅ Contract has been deployed to the ledger
+                </p>
+              </>
+            ) : (
+              <>
+                <h3 className="font-bold text-red-800 mb-2">Deployment Failed</h3>
+                <p className="text-sm text-red-700">{deployResult.error}</p>
+              </>
+            )}
           </div>
         )}
       </div>

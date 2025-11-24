@@ -2,11 +2,9 @@
 
 import { Header } from "../components/Header";
 import { AccountInfo } from "../components/AccountInfo";
-import { FaucetRequest } from "../components/FaucetRequest";
 import { ContractDeployment } from "../components/ContractDeployment";
 import { ContractInteraction } from "../components/ContractInteraction";
-import { TransactionHistory } from "../components/TransactionHistory";
-import { DebugPanel } from "../components/DebugPanel";
+import { TransactionForm } from "../components/TransactionForm";
 
 export default function Home() {
   return (
@@ -21,17 +19,27 @@ export default function Home() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 space-y-6">
-            <AccountInfo />
-            <FaucetRequest />
-            <ContractDeployment />
-            <ContractInteraction />
-            <TransactionHistory />
-          </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+          <AccountInfo />
+        </div>
 
-          <div className="lg:col-span-1">
-            <DebugPanel />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          <ContractDeployment />
+          <ContractInteraction />
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          <TransactionForm />
+        </div>
+
+        <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
+          <h2 className="text-xl font-bold mb-3">Getting Started</h2>
+          <div className="space-y-2 text-sm">
+            <p>1. Connect your wallet using the button in the header</p>
+            <p>2. Upload your WASM contract file to get the hex code</p>
+            <p>3. Deploy your smart contract to AlphaNet (requires 100 XRP fee)</p>
+            <p>4. Interact with deployed contracts using the contract interaction panel</p>
+            <p>5. Send XRP transactions using the transaction form</p>
           </div>
         </div>
       </main>
