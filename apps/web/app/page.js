@@ -23,17 +23,23 @@ export default function Home() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          <ContractInteraction />
-          <TransactionForm />
+           <a href="/dashboard" className="group block p-6 bg-white border border-gray-200 rounded-xl hover:shadow-lg transition-all hover:border-blue-300">
+            <h3 className="text-xl font-bold mb-2 group-hover:text-blue-600">Organizer Dashboard &rarr;</h3>
+            <p className="text-gray-600">Mint new event tickets as NFTs on the XRPL.</p>
+           </a>
+
+           <a href="/events" className="group block p-6 bg-white border border-gray-200 rounded-xl hover:shadow-lg transition-all hover:border-blue-300">
+            <h3 className="text-xl font-bold mb-2 group-hover:text-blue-600">Event Marketplace &rarr;</h3>
+            <p className="text-gray-600">Browse and buy tickets with RLUSD.</p>
+           </a>
         </div>
 
         <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
           <h2 className="text-xl font-bold mb-3">Getting Started</h2>
           <div className="space-y-2 text-sm">
             <p>1. Connect your wallet using the button in the header</p>
-            <p>2. Deploy your smart contract using Bedrock or XRPL CLI</p>
-            <p>3. Interact with deployed contracts using the contract interaction panel</p>
-            <p>4. Send XRP transactions using the transaction form</p>
+            <p>2. Go to Organizer Dashboard to Mint a Ticket</p>
+            <p>3. Go to Event Marketplace to Buy a Ticket</p>
           </div>
         </div>
       </main>
