@@ -12,10 +12,10 @@ export const Button = ({
   const baseStyles = 'inline-flex items-center justify-center rounded-xl font-medium transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-blue-900 disabled:opacity-50 disabled:cursor-not-allowed';
   
   const variants = {
-    primary: 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/30',
-    secondary: 'bg-white/10 hover:bg-white/20 text-blue-900 border border-blue-200 hover:bg-blue-50',
-    outline: 'border border-blue-200 hover:bg-blue-50 text-blue-700',
-    ghost: 'hover:bg-blue-50 text-gray-600 hover:text-blue-700',
+    primary: 'bg-gradient-to-r from-purple-600 to-green-500 hover:from-purple-500 hover:to-green-400 text-white shadow-lg shadow-purple-900/40 border border-t-white/10',
+    secondary: 'bg-white/10 hover:bg-white/20 text-white border border-white/10 backdrop-blur-sm',
+    outline: 'border border-white/20 hover:bg-white/10 text-white',
+    ghost: 'hover:bg-white/5 text-gray-400 hover:text-white',
   };
 
   const sizes = {

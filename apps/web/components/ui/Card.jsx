@@ -4,8 +4,8 @@ export const Card = ({ children, className = '', hover = false }) => {
   return (
     <div 
       className={`
-        bg-white rounded-2xl border border-gray-200 p-6 
-        ${hover ? 'hover:border-blue-300 hover:shadow-xl hover:shadow-blue-900/5 transition-all duration-300' : 'shadow-sm'}
+        glass-card rounded-2xl overflow-hidden
+        ${hover ? 'transition-all duration-300 hover:scale-[1.02] hover:shadow-purple-900/20 hover:border-purple-500/30' : ''}
         ${className}
       `}
     >

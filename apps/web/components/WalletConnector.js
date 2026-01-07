@@ -6,12 +6,12 @@ import { useWalletConnector } from "../hooks/useWalletConnector";
 
 const THEMES = {
   dark: {
-    "--xc-background-color": "#1a202c",
-    "--xc-background-secondary": "#2d3748",
-    "--xc-background-tertiary": "#4a5568",
-    "--xc-text-color": "#F5F4E7",
-    "--xc-text-muted-color": "rgba(245, 244, 231, 0.6)",
-    "--xc-primary-color": "#3b99fc",
+    "--xc-background-color": "#020202",
+    "--xc-background-secondary": "#111111",
+    "--xc-background-tertiary": "#222222",
+    "--xc-text-color": "#fcfcfc",
+    "--xc-text-muted-color": "rgba(252, 252, 252, 0.6)",
+    "--xc-primary-color": "#22c55e",
   },
   light: {
     "--xc-background-color": "#ffffff",
@@ -40,12 +40,10 @@ export function WalletConnector() {
   useEffect(() => {
     setIsClient(true);
 
-    // Register the web component
     const registerWebComponent = async () => {
       try {
         const { WalletConnectorElement } = await import("xrpl-connect");
 
-        // Define the custom element if not already defined
         if (!customElements.get("xrpl-wallet-connector")) {
           customElements.define("xrpl-wallet-connector", WalletConnectorElement);
         }
