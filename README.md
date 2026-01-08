@@ -50,7 +50,7 @@ NEXT_PUBLIC_TREASURY_ADDRESS=
 ```
 
 > [!NOTE]
-> On Testnet, settings the Treasury address to the Issuer address avoids `tecPATH_DRY` errors caused by Rippling restrictions.
+> On Testnet, set the Treasury address to the wallet address used to receive payments.
 
 ## 🛠️ Project Structure
 
