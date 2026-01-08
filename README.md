@@ -75,7 +75,7 @@ EntryX/
 
 ## 🎓 About
 
-This project is part of the **NUS FinTech Summit 2026** competition. It aims to solve real-world ticketing challenges—like scalping and fraud—by leveraging the transparency and speed of the XRP Ledger.
+EntryX is developed for the NUS FinTech Summit 2026. It tackles real-world ticketing issues like scalping and fraud by leveraging the speed, transparency, and security of the XRP Ledger. By tokenizing tickets and enabling wallet-based payments with XRPL Connect, EntryX ensures verifiable ownership, trustless transactions, and seamless entry verification for both organizers and attendees.
 
 ---
 Built with 💜 for the FinTech Community.
