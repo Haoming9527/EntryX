@@ -6,8 +6,9 @@ import { Button } from "../../components/ui/Button";
 import { Card } from "../../components/ui/Card";
 
 export default function Events() {
-  const { walletManager, isConnected, accountInfo } = useWallet();
+  const { walletManager, isConnected, accountInfo, showStatus } = useWallet();
   const [isLoading, setIsLoading] = useState(false);
+  const [purchaseStatus, setPurchaseStatus] = useState("");
 
   const mockEvents = [
     { 
@@ -62,7 +63,7 @@ export default function Events() {
 
   const handleBuy = async (evt) => {
     if (!isConnected || !walletManager || !accountInfo) {
-      alert("Please connect your wallet first");
+      showStatus("Please connect your wallet first", "error");
       return;
     }
 
@@ -72,21 +73,31 @@ export default function Events() {
       
       const amount = evt.price.split(' ')[0];
 
-      const result = await buyTicketWithRlusd(walletManager, accountInfo.address, {
-        name: evt.title,
-        description: evt.description,
-        image: evt.image,
-        date: evt.date,
-        price: evt.price
-      }, amount);
+      const result = await buyTicketWithRlusd(
+        walletManager, 
+        accountInfo.address, 
+        {
+          name: evt.title,
+          description: evt.description,
+          image: evt.image,
+          date: evt.date,
+          price: evt.price
+        }, 
+        amount,
+        (status) => {
+          setPurchaseStatus(status);
+          showStatus(status, "info");
+        }
+      );
 
       console.log('Purchase Result:', result);
-      alert(`Successfully purchased ticket for ${evt.title}!`);
+      showStatus(`Successfully purchased ticket for ${evt.title}!`, "success");
     } catch (error) {
       console.error("Purchase failed:", error);
-      alert("Purchase failed. See console.");
+      showStatus("Purchase failed: " + (error.message || "Unknown error"), "error");
     } finally {
       setIsLoading(false);
+      setPurchaseStatus("");
     }
   };
 

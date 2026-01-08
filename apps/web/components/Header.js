@@ -12,11 +12,13 @@ export function Header() {
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-8">
-            <Link href="/" className="flex items-center space-x-2 group">
-              <div className="w-10 h-10 bg-gradient-to-tr from-green-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg shadow-green-900/40 group-hover:scale-105 transition-all">
-                <span className="text-white font-bold text-xl">E</span>
-              </div>
-              <span className="text-2xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-green-500 to-purple-500 pb-2 pt-1">
+            <Link href="/" className="flex items-center space-x-3 group">
+              <img 
+                src="/logo.png" 
+                alt="EntryX Logo" 
+                className="w-10 h-10 object-contain drop-shadow-[0_0_8px_rgba(34,197,94,0.4)] group-hover:scale-105 transition-all"
+              />
+              <span className="text-2xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-green-500 to-purple-600 pb-2 pt-1">
                 EntryX
               </span>
             </Link>

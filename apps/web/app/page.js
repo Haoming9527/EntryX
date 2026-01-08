@@ -12,7 +12,7 @@ export default function Home() {
       
       <main className="container mx-auto px-4 py-8">
         <div className="mb-12 text-center">
-          <h1 className="text-6xl md:text-7xl font-extrabold mb-6 pb-4 pt-2 bg-clip-text text-transparent bg-gradient-to-r from-green-500 to-purple-500 leading-normal filter drop-shadow-[0_0_10px_rgba(34,197,94,0.3)]">
+          <h1 className="inline-block text-6xl font-extrabold tracking-tight mb-6 pb-4 pt-2 bg-clip-text text-transparent bg-gradient-to-r from-green-500 to-purple-600 leading-none">
             EntryX
           </h1>
           <p className="text-xl text-gray-400 max-w-2xl mx-auto">
@@ -28,14 +28,14 @@ export default function Home() {
           )}
           
           <div className={`${isConnected ? 'lg:col-span-2' : ''} grid grid-cols-1 gap-6 w-full`}>
-             <Link href="/events" className="group block p-8 glass-card border-purple-500/40 hover:border-purple-400/60 transition-all shadow-[0_0_20px_rgba(168,85,247,0.15)]">
+             <Link href="/events" className="group block p-8 glass-card hover:border-purple-500/50 transition-all">
               <h3 className="text-2xl font-bold mb-2 text-white group-hover:text-purple-400 flex items-center">
                 Event Marketplace <span className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity">→</span>
               </h3>
               <p className="text-gray-400">Browse vibrant events and secure your spot with RLUSD.</p>
              </Link>
 
-             <Link href="/tickets" className="group block p-8 glass-card border-green-500/40 hover:border-green-400/60 transition-all shadow-[0_0_20px_rgba(34,197,94,0.15)]">
+             <Link href="/tickets" className="group block p-8 glass-card hover:border-green-500/50 transition-all">
               <h3 className="text-2xl font-bold mb-2 text-white group-hover:text-green-400 flex items-center">
                 My Tickets <span className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity">→</span>
               </h3>

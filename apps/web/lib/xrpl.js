@@ -1,4 +1,4 @@
-import { Client } from "xrpl";
+import { Client, convertStringToHex } from "xrpl";
 
 const XRPL_RPC_URL = process.env.NEXT_PUBLIC_XRPL_RPC_URL;
 
@@ -42,7 +42,6 @@ export const burnNft = async (walletManager, address, nftTokenId) => {
 };
 
 export const mintNft = async (walletManager, address, metadata) => {
-  const { convertStringToHex } = await import("xrpl");
   const uri = convertStringToHex(JSON.stringify(metadata));
 
   const transaction = {
@@ -56,10 +55,16 @@ export const mintNft = async (walletManager, address, metadata) => {
   return await walletManager.signAndSubmit(transaction);
 };
 
-export const buyTicketWithRlusd = async (walletManager, address, metadata, amount) => {
+export const buyTicketWithRlusd = async (walletManager, address, metadata, amount, onProgress) => {
   const RLUSD_ISSUER = process.env.NEXT_PUBLIC_RLUSD_ISSUER;
   const RLUSD_CURRENCY = process.env.NEXT_PUBLIC_RLUSD_CURRENCY;
   const TREASURY_ADDRESS = process.env.NEXT_PUBLIC_TREASURY_ADDRESS;
+
+  console.log("Preparing RLUSD Payment:", {
+    amount,
+    destination: TREASURY_ADDRESS,
+    issuer: RLUSD_ISSUER
+  });
 
   const paymentTransaction = {
     TransactionType: "Payment",
@@ -72,6 +77,15 @@ export const buyTicketWithRlusd = async (walletManager, address, metadata, amoun
     },
   };
 
-  const paymentResult = await walletManager.signAndSubmit(paymentTransaction);
-  return await mintNft(walletManager, address, metadata);
+  try {
+    if (onProgress) onProgress("Step 1/2: Processing RLUSD Payment...");
+    const paymentResult = await walletManager.signAndSubmit(paymentTransaction);
+    console.log("Payment successful, now minting NFT...", paymentResult);
+    
+    if (onProgress) onProgress("Step 2/2: Minting your Ticket NFT...");
+    return await mintNft(walletManager, address, metadata);
+  } catch (error) {
+    console.error("Payment or Minting failed:", error);
+    throw error;
+  }
 };
